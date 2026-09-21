@@ -1,0 +1,15 @@
+{
+  "name": "turingshowdown",
+  "private": true,
+  "description": "A counter machine that runs as a Pokémon battle, on the real Pokémon Showdown engine",
+  "type": "module",
+  "engines": {
+    "node": ">=23.6"
+  },
+  "scripts": {
+    "setup": "scripts/setup.sh",
+    "test": "node --test test/*.test.ts",
+    "typecheck": "pokemon-showdown/node_modules/.bin/tsc -p .",
+    "factorial": "node src/cli.ts factorial"
+  }
+}

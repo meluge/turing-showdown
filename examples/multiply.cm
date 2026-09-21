@@ -1,0 +1,13 @@
+; R := 3 * 4, written directly in the text IR.
+;   node src/cli.ts run examples/multiply.cm
+
+SETUP:
+    DEC R x6        ; stages start at 0, i.e. both counters start at 6
+    DEC T x6
+    INC T x4        ; T := 4
+    GOTO MUL
+
+MUL:                ; R := R + 3 * T; T := 0
+    DJZ T HALT
+    INC R x3
+    GOTO MUL

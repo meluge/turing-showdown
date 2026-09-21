@@ -1,0 +1,130 @@
+diff --git a/data/rulesets.ts b/data/rulesets.ts
+index ead6cca..07ec34a 100644
+--- a/data/rulesets.ts
++++ b/data/rulesets.ts
+@@ -1864,6 +1864,24 @@ export const Rulesets: import('../sim/dex-formats').FormatDataTable = {
+ 		desc: "Caps stats at 654 after a positive nature, or 655 after a negative nature",
+ 		// Implemented in sim/battle.ts
+ 	},
++	unboundedboostsmod: {
++		effectType: 'Rule',
++		name: 'Unbounded Boosts Mod',
++		desc: "Stat stages have no upper limit (the -6 floor stays); the stage multiplier stays (2+n)/2",
++		// Implemented in sim/pokemon.ts
++	},
++	infiniteppmod: {
++		effectType: 'Rule',
++		name: 'Infinite PP Mod',
++		desc: "Moves never lose PP",
++		// Implemented in sim/pokemon.ts
++	},
++	noturnlimitmod: {
++		effectType: 'Rule',
++		name: 'No Turn Limit Mod',
++		desc: "Removes the turn-1000 auto-tie",
++		// Implemented in sim/battle.ts
++	},
+ 	formeclause: {
+ 		effectType: 'ValidatorRule',
+ 		name: 'Forme Clause',
+diff --git a/sim/battle.ts b/sim/battle.ts
+index c17ef24..53c4b5a 100644
+--- a/sim/battle.ts
++++ b/sim/battle.ts
+@@ -1836,16 +1836,18 @@ export class Battle {
+ 		if (this.turn <= 100) return;
+ 
+ 		// the turn limit is not a part of Endless Battle Clause
+-		if (this.turn > 1000) {
++		// (nor of the game itself, so No Turn Limit Mod can switch it off)
++		const turnLimit = !this.ruleTable.has('noturnlimitmod');
++		if (turnLimit && this.turn > 1000) {
+ 			this.add('message', `It is turn 1000. You have hit the turn limit!`);
+ 			this.tie();
+ 			return true;
+ 		}
+-		if (
++		if (turnLimit && (
+ 			(this.turn >= 500 && this.turn % 100 === 0) || // every 100 turns past turn 500,
+ 			(this.turn >= 900 && this.turn % 10 === 0) || // every 10 turns past turn 900,
+ 			this.turn >= 990 // every turn past turn 990
+-		) {
++		)) {
+ 			const turnsLeft = 1000 - this.turn;
+ 			const turnsLeftText = (turnsLeft === 1 ? `1 turn` : `${turnsLeft} turns`);
+ 			this.add('bigerror', `You will auto-tie if the battle doesn't end in ${turnsLeftText} (on turn 1000).`);
+diff --git a/sim/pokemon.ts b/sim/pokemon.ts
+index a24bbc1..fba4dfb 100644
+--- a/sim/pokemon.ts
++++ b/sim/pokemon.ts
+@@ -580,19 +580,25 @@ export class Pokemon {
+ 		boosts[boostName] = boost;
+ 		boosts = this.battle.runEvent('ModifyBoost', statUser || this, null, null, boosts);
+ 		boost = boosts[boostName]!;
+-		const boostTable = [1, 1.5, 2, 2.5, 3, 3.5, 4];
+-		if (boost > 6) boost = 6;
+-		if (boost < -6) boost = -6;
+-		if (boost >= 0) {
+-			stat = Math.floor(stat * boostTable[boost]);
+-		} else {
+-			stat = Math.floor(stat / boostTable[-boost]);
+-		}
++		stat = this.applyBoostMultiplier(stat, boost);
+ 
+ 		// stat modifier
+ 		return this.battle.modify(stat, (modifier || 1));
+ 	}
+ 
++	/**
++	 * Stage multiplier: (2+n)/2 for n >= 0, 2/(2-n) for n < 0. Stages are
++	 * normally clamped to [-6, 6]; Unbounded Boosts Mod removes the upper clamp.
++	 */
++	applyBoostMultiplier(stat: number, boost: number) {
++		if (boost > 6 && !this.battle.ruleTable.has('unboundedboostsmod')) boost = 6;
++		if (boost < -6) boost = -6;
++		if (boost >= 0) {
++			return Math.floor(stat * (2 + boost) / 2);
++		}
++		return Math.floor(stat * 2 / (2 - boost));
++	}
++
+ 	getStat(statName: StatIDExceptHP, unboosted?: boolean, unmodified?: boolean) {
+ 		statName = toID(statName) as StatIDExceptHP;
+ 		// @ts-expect-error type checking prevents 'hp' from being passed, but we're paranoid
+@@ -617,15 +623,7 @@ export class Pokemon {
+ 			if (!unmodified) {
+ 				boosts = this.battle.runEvent('ModifyBoost', this, null, null, { ...boosts });
+ 			}
+-			let boost = boosts[statName];
+-			const boostTable = [1, 1.5, 2, 2.5, 3, 3.5, 4];
+-			if (boost > 6) boost = 6;
+-			if (boost < -6) boost = -6;
+-			if (boost >= 0) {
+-				stat = Math.floor(stat * boostTable[boost]);
+-			} else {
+-				stat = Math.floor(stat / boostTable[-boost]);
+-			}
++			stat = this.applyBoostMultiplier(stat, boosts[statName]);
+ 		}
+ 
+ 		// stat modifier effects
+@@ -893,6 +891,8 @@ export class Pokemon {
+ 		if (!ppData.pp) return 0;
+ 
+ 		if (!amount) amount = 1;
++		// report the PP as spent (0 means "out of PP" to callers) without spending it
++		if (this.battle.ruleTable.has('infiniteppmod')) return amount;
+ 		ppData.pp -= amount;
+ 		if (ppData.pp < 0) {
+ 			amount += ppData.pp;
+@@ -1213,7 +1213,9 @@ export class Pokemon {
+ 		for (boostName in boosts) {
+ 			const boost = boosts[boostName];
+ 			if (!boost) continue;
+-			cappedBoost[boostName] = this.battle.clampIntRange(this.boosts[boostName] + boost, -6, 6) - this.boosts[boostName];
++			// Unbounded Boosts Mod: no ceiling; the -6 floor always stays
++			const max = this.battle.ruleTable.has('unboundedboostsmod') ? undefined : 6;
++			cappedBoost[boostName] = this.battle.clampIntRange(this.boosts[boostName] + boost, -6, max) - this.boosts[boostName];
+ 		}
+ 		return cappedBoost;
+ 	}

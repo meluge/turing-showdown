@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>__TITLE__ - Pokémon counter machine</title>
+<style>
+:root {
+	color-scheme: light dark;
+	--page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+	--hairline: #e1e0d9; --axis: #c3c2b7; --strip-a: #e1e0d9; --strip-b: #efeeea;
+	--series-r: #2a78d6; --series-t: #eb6834;
+	--accent: #4a3aa7; --accent-soft: #e9e6f8; --arrive-soft: #f3f1ea;
+}
+@media (prefers-color-scheme: dark) {
+	:root {
+		--page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+		--hairline: #2c2c2a; --axis: #383835; --strip-a: #2c2c2a; --strip-b: #222221;
+		--series-r: #3987e5; --series-t: #d95926;
+		--accent: #9085e9; --accent-soft: #2b2850; --arrive-soft: #262624;
+	}
+}
+* { box-sizing: border-box; scrollbar-color: var(--axis) transparent; scrollbar-width: thin; }
+body {
+	margin: 0; background: var(--page); color: var(--ink);
+	font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+code, .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.92em; }
+.page { max-width: 1240px; margin: 0 auto; padding: 16px 16px 0; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; margin-bottom: 12px; }
+h1 { font-size: 20px; margin: 0; }
+header .sub { color: var(--ink-2); }
+header .turn { margin-left: auto; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+header .turn b { color: var(--ink); font-size: 18px; }
+
+.layout { display: grid; grid-template-columns: minmax(260px, 340px) 1fr; gap: 16px; align-items: start; }
+@media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
+.card { background: var(--surface); border: 1px solid var(--hairline); border-radius: 10px; padding: 12px 14px; }
+.card > h2 { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; font-weight: 600; }
+.right { display: grid; gap: 16px; min-width: 0; }
+
+/* program */
+.program { max-height: calc(100vh - 370px); min-height: 240px; overflow: auto; }
+@media (max-width: 800px) { .program { max-height: 320px; } }
+.block { border: 1px solid var(--hairline); border-radius: 8px; padding: 6px 8px; margin-bottom: 8px; transition: background 0.15s, border-color 0.15s; }
+.block:last-child { margin-bottom: 0; }
+.block.active { border-color: var(--accent); background: var(--accent-soft); }
+.block.arriving { border-color: var(--accent); border-style: dashed; background: var(--arrive-soft); }
+.block-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
+.block-label { font-weight: 700; }
+.block-tag { font-size: 11px; color: var(--accent); font-weight: 600; margin-left: auto; min-height: 16px; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0 2px; }
+.chip { font-size: 11px; padding: 0 6px; border-radius: 9px; border: 1px solid var(--hairline); color: var(--ink-2); background: var(--surface); }
+.chip.used { border-color: var(--accent); color: var(--ink); font-weight: 600; }
+.instr { display: flex; align-items: center; gap: 8px; padding: 1px 6px; border-radius: 5px; border-left: 3px solid transparent; }
+.instr.current { border-left-color: var(--accent); background: var(--surface); font-weight: 600; }
+.instr .count { margin-left: auto; color: var(--muted); font-size: 12px; font-weight: 400; font-variant-numeric: tabular-nums; }
+.pips { display: inline-flex; gap: 2px; margin-left: auto; }
+.pip { width: 7px; height: 7px; border-radius: 50%; border: 1px solid var(--axis); }
+.pip.done { background: var(--accent); border-color: var(--accent); }
+
+/* counters */
+.counters { display: grid; grid-template-columns: 1fr 1fr minmax(120px, 0.6fr); gap: 12px; }
+@media (max-width: 800px) { .counters { grid-template-columns: 1fr 1fr; } }
+.tile-head { display: flex; align-items: center; gap: 6px; color: var(--ink-2); font-size: 13px; }
+.swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.value-row { display: flex; align-items: baseline; gap: 10px; }
+.value { font-size: 40px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.tile.small .value { font-size: 26px; }
+.delta { font-size: 13px; font-weight: 600; color: var(--ink-2); padding: 0 6px; border-radius: 9px; border: 1px solid var(--hairline); visibility: hidden; }
+.delta.show { visibility: visible; }
+.delta.zero { color: var(--ink); border-color: var(--accent); background: var(--accent-soft); }
+.stage { color: var(--ink-2); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.bar { position: relative; height: 8px; border-radius: 4px; background: var(--hairline); margin-top: 8px; }
+.bar-fill { height: 100%; border-radius: 4px; min-width: 0; transition: width 0.12s; }
+.bar-cap { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--muted); }
+.bar-note { color: var(--muted); font-size: 11px; margin-top: 3px; min-height: 15px; }
+@keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.12); } 100% { transform: scale(1); } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+.value.bump { animation: bump 0.2s; }
+.value.shake { animation: shake 0.2s; }
+
+/* this turn */
+.turn-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-bottom: 6px; }
+.turn-title { font-size: 17px; font-weight: 700; }
+.tag { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; padding: 1px 8px; border-radius: 9px; border: 1px solid var(--axis); color: var(--ink-2); }
+.tag.strong { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); }
+.explain p { margin: 0 0 6px; max-width: 72ch; }
+.explain p:last-child { margin-bottom: 0; }
+.explain .aside { color: var(--ink-2); font-size: 13.5px; }
+
+/* protocol */
+.protocol { font-size: 12.5px; max-height: 190px; overflow: auto; }
+.pline { white-space: pre-wrap; word-break: break-all; padding: 0 6px; border-left: 3px solid transparent; }
+.pline.dim { color: var(--muted); }
+.pline.key { border-left-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+.pline.ghost { border-left: 3px dashed var(--accent); color: var(--ink-2); font-style: italic; }
+
+/* timeline */
+.dock { position: sticky; bottom: 0; background: var(--page); padding: 12px 0 12px; margin-top: 16px; border-top: 1px solid var(--hairline); }
+.dock-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-bottom: 6px; }
+.legend { display: flex; gap: 14px; font-size: 12.5px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend i { width: 14px; height: 2px; display: inline-block; }
+.controls { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-left: auto; }
+button, select {
+	font: inherit; font-size: 13px; color: var(--ink); background: var(--surface);
+	border: 1px solid var(--axis); border-radius: 7px; padding: 4px 10px; cursor: pointer;
+}
+button:hover, select:hover { border-color: var(--accent); }
+button.primary { min-width: 78px; font-weight: 700; border-color: var(--accent); }
+.chart-wrap { position: relative; }
+canvas { display: block; width: 100%; height: 150px; cursor: crosshair; touch-action: none; }
+.tip {
+	position: absolute; top: 4px; pointer-events: none; background: var(--surface); border: 1px solid var(--axis);
+	border-radius: 7px; padding: 4px 8px; font-size: 12px; white-space: nowrap; display: none; font-variant-numeric: tabular-nums;
+}
+.tip div { display: flex; align-items: center; gap: 5px; }
+.hint { color: var(--muted); font-size: 12px; margin-top: 4px; }
+</style>
+
+<div class="page">
+	<header>
+		<h1 id="title"></h1>
+		<span class="sub">a counter machine running as a Pokémon battle</span>
+		<span class="turn">turn <b id="turn-now">0</b> / <span id="turn-total"></span></span>
+	</header>
+
+	<div class="layout">
+		<section class="card">
+			<h2>Program: one Pokémon per block</h2>
+			<div class="program" id="program"></div>
+		</section>
+
+		<div class="right">
+			<section class="counters" id="counters"></section>
+			<section class="card">
+				<h2>This turn</h2>
+				<div class="turn-head"><span class="turn-title" id="turn-title"></span><span id="turn-tags"></span></div>
+				<div class="explain" id="explain"></div>
+			</section>
+			<section class="card" id="protocol-card">
+				<h2>Battle log: what the player sees this turn</h2>
+				<div class="protocol mono" id="protocol"></div>
+			</section>
+		</div>
+	</div>
+
+	<div class="dock">
+		<div class="dock-head">
+			<div class="legend">
+				<span><i style="background:var(--series-r)"></i>R (Defense)</span>
+				<span><i style="background:var(--series-t)"></i>T (Speed)</span>
+				<span>strip: which block is active</span>
+			</div>
+			<div class="controls">
+				<button id="b-start" title="Home">⏮</button>
+				<button id="b-back" title="←">◀ step</button>
+				<button id="b-play" class="primary" title="Space">▶ play</button>
+				<button id="b-fwd" title="→">step ▶</button>
+				<button id="b-zero" title="Z">next zero test ⤼</button>
+				<button id="b-jump" title="J">next jump ⤼</button>
+				<button id="b-end" title="End">⏭</button>
+				<select id="speed" title="playback speed"></select>
+			</div>
+		</div>
+		<div class="chart-wrap">
+			<canvas id="chart"></canvas>
+			<div class="tip" id="tip"></div>
+		</div>
+		<div class="hint">Click or drag the chart to scrub. Keys: space, ← →, Z next zero test, J next jump, Home, End.</div>
+	</div>
+</div>
+
+<script>
+const D = "__DATA__";
+const N = D.turns.length;
+const COUNTERS = ['R', 'T'];
+const STAT_NAME = { atk: 'Attack', def: 'Defense', spe: 'Speed' };
+const FAILED_BIT = { atk: 1, def: 2, spe: 4 };
+const COL = { block: 0, pc: 1, move: 2, def: 3, spe: 4, atk: 5, failed: 6 };
+const $ = id => document.getElementById(id);
+const el = (tag, cls, text) => {
+	const node = document.createElement(tag);
+	if (cls) node.className = cls;
+	if (text !== undefined) node.textContent = text;
+	return node;
+};
+
+// ---- derived data ----
+const stageAt = (t, stat) => t === 0 ? 0 : D.turns[t - 1][COL[stat]];
+const counterAt = (t, counter) => stageAt(t, D.counterStat[counter]) + D.initialCounter;
+const maxCounter = {};
+for (const c of COUNTERS) {
+	let max = D.initialCounter;
+	for (let t = 1; t <= N; t++) max = Math.max(max, counterAt(t, c));
+	maxCounter[c] = max;
+}
+const yMax = Math.max(maxCounter.R, maxCounter.T);
+const isJump = t => t >= 1 && D.moves[D.turns[t - 1][COL.move]] === D.batonPass;
+// a visit is a stretch of turns spent in one block; a Baton Pass turn ends it
+const visitOf = new Uint32Array(N + 1);
+const visits = [];
+for (let t = 1; t <= N; t++) {
+	const block = D.turns[t - 1][COL.block];
+	const last = visits.at(-1);
+	if (!last || isJump(t - 1)) visits.push({ block, from: t, to: t });
+	else last.to = t;
+	visitOf[t] = visits.length - 1;
+}
+const instrText = instr => [instr.op, instr.counter, instr.target].filter(Boolean).join(' ');
+const isZeroTest = t => {
+	if (t < 1) return false;
+	const [block, pc, , , , , failed] = D.turns[t - 1];
+	const instr = D.blocks[block].body[pc];
+	return instr.op === 'DJZ' && (failed & FAILED_BIT[D.counterStat[instr.counter]]) !== 0;
+};
+
+// ---- program panel ----
+const blockEls = D.blocks.map(block => {
+	const root = el('div', 'block');
+	const head = el('div', 'block-head');
+	head.append(el('span', 'block-label mono', block.label), el('span', 'chip', 'Smeargle'));
+	const tag = el('span', 'block-tag');
+	head.append(tag);
+	const chips = el('div', 'chips');
+	const chipEls = Object.fromEntries(block.moves.map(move => {
+		const chip = el('span', 'chip', move);
+		chips.append(chip);
+		return [move, chip];
+	}));
+	root.append(head, chips);
+	// consecutive identical instructions share a line, as in the text IR
+	const lineOf = [];
+	const lines = [];
+	for (let i = 0; i < block.body.length;) {
+		const text = instrText(block.body[i]);
+		let n = 1;
+		while (i + n < block.body.length && instrText(block.body[i + n]) === text) n++;
+		const row = el('div', 'instr mono');
+		row.append(el('span', '', text + (n > 1 ? ` x${n}` : '')));
+		let pips = [], count = null;
+		if (n > 1 && n <= 12) {
+			const holder = el('span', 'pips');
+			pips = Array.from({ length: n }, () => el('span', 'pip'));
+			holder.append(...pips);
+			row.append(holder);
+		} else if (n > 12) {
+			count = el('span', 'count');
+			row.append(count);
+		}
+		root.append(row);
+		lines.push({ row, start: i, n, pips, count });
+		for (let k = 0; k < n; k++) lineOf.push(lines.length - 1);
+		i += n;
+	}
+	$('program').append(root);
+	return { root, tag, chipEls, lines, lineOf };
+});
+
+// ---- counter tiles ----
+const tiles = {};
+for (const key of [...COUNTERS, 'atk']) {
+	const isCounter = key !== 'atk';
+	const stat = isCounter ? D.counterStat[key] : 'atk';
+	const tile = el('div', 'card tile' + (isCounter ? '' : ' small'));
+	const head = el('div', 'tile-head');
+	if (isCounter) {
+		const swatch = el('span', 'swatch');
+		swatch.style.background = `var(--series-${key.toLowerCase()})`;
+		head.append(swatch, el('span', '', `Counter ${key}, stored in ${STAT_NAME[stat]}`));
+	} else {
+		head.append(el('span', '', 'Attack stage (scratch, not a counter)'));
+	}
+	const valueRow = el('div', 'value-row');
+	const value = el('span', 'value');
+	const delta = el('span', 'delta');
+	valueRow.append(value, delta);
+	const stage = el('div', 'stage');
+	tile.append(head, valueRow, stage);
+	let fill = null;
+	if (isCounter) {
+		const bar = el('div', 'bar');
+		fill = el('div', 'bar-fill');
+		fill.style.background = `var(--series-${key.toLowerCase()})`;
+		bar.append(fill);
+		const note = el('div', 'bar-note');
+		if (maxCounter[key] > 12) {
+			const cap = el('div', 'bar-cap');
+			cap.style.left = `${12 / maxCounter[key] * 100}%`;
+			bar.append(cap);
+			note.textContent = `Tick: the normal game's cap of +6. Full bar: this run's peak, ${maxCounter[key]}.`;
+		}
+		tile.append(bar, note);
+	}
+	$('counters').append(tile);
+	tiles[key] = { key, stat, value, delta, stage, fill, isCounter };
+}
+const signed = n => (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n);
+const multiplier = n => `×${Number((n >= 0 ? (2 + n) / 2 : 2 / (2 - n)).toFixed(3))}`;
+
+// ---- this turn ----
+function explain(t) {
+	const parts = []; // [text, isCode] runs per paragraph
+	const tags = [];
+	const para = (...runs) => parts.push({ runs, aside: false });
+	const aside = (...runs) => parts.push({ runs, aside: true });
+	const code = text => ({ code: text });
+	if (t === 0) {
+		para(`Before turn 1. `, code(D.blocks[0].label), ` is out first, because execution starts at the first block. Every stat stage starts at 0, and a counter is its stage plus ${D.initialCounter}, so both counters start at ${D.initialCounter}.`);
+		para(`A stage cannot go below −6, which is counter value 0. Trying to lower it there fails, and noticing that failure is the machine's zero test.`);
+		return { title: 'Start of the battle', tags, parts };
+	}
+	const [b, pc, moveIndex, , , , failed] = D.turns[t - 1];
+	const block = D.blocks[b], instr = block.body[pc], move = D.moves[moveIndex];
+	const title = `Turn ${t}: ${block.label} used ${move}`;
+	if (move === D.batonPass) {
+		tags.push(['JUMP', true]);
+		para(code(instrText(instr)), ` takes effect. Baton Pass switches in `, code(instr.target), ` and hands it every stat stage unchanged, so both counters survive the switch.`);
+		para(`Which Pokémon is active is the program counter. `, code(instr.target), ` only knows the moves its own block needs, and it starts at its first instruction next turn.`);
+	} else {
+		const counter = instr.counter, stat = D.counterStat[counter];
+		const before = counterAt(t - 1, counter), after = counterAt(t, counter);
+		const change = `${counter} goes from ${before} to ${after}.`;
+		if (instr.op === 'INC') {
+			tags.push(['INC', false]);
+			if (after > before) para(code(instrText(instr)), `: ${move} raises ${STAT_NAME[stat]} by one stage. ${change}`);
+			else para(code(instrText(instr)), `: ${move} missed, so it is tried again next turn.`);
+		} else if (!(failed & FAILED_BIT[stat])) {
+			tags.push([instr.op === 'DJZ' ? 'DJZ: NOT ZERO' : 'DEC', false]);
+			para(code(instrText(instr)), `: ${move} lowers the user's ${STAT_NAME[stat]} by one stage. ${change}`);
+			if (instr.op === 'DJZ') para(`The drop happened, so ${counter} was not zero. No jump: execution falls through to the next instruction.`);
+		} else {
+			tags.push([instr.op === 'DJZ' ? 'ZERO TEST: TAKEN' : 'DEC AT ZERO', true]);
+			para(code(instrText(instr)), `: ${move} tries to lower ${STAT_NAME[stat]}, but it is already at −6, the lowest stage. Nothing changes, and ${counter} stays 0.`);
+			para(`The battle log has no `, code(`-unboost|${stat}`), ` line this turn. That missing line is all the player sees, and it is how they learn ${counter} = 0.`);
+			if (instr.op === 'DEC') para(`DEC at zero simply leaves the counter at 0.`);
+			else if (instr.target === 'HALT') para(`The jump target is HALT, so the machine stops here.`);
+			else if (instr.target === block.label) para(`The jump goes back to the top of this same block, which costs no turn.`);
+			else para(`So the jump to `, code(instr.target), ` is taken: next turn, Baton Pass brings it in.`);
+		}
+		if (move === D.lower.R) aside(`${move} also lowers Attack. Attack is not a counter: the first block drives it to −6, and it stays there.`);
+	}
+	if (t === N) {
+		para(D.halted ?
+			`The machine halted after ${N} turns with R = ${counterAt(N, 'R')} and T = ${counterAt(N, 'T')}.` :
+			`The run was cut off here, after ${N} turns, before the machine halted.`);
+	}
+	return { title, tags, parts };
+}
+
+function renderExplain(t) {
+	const { title, tags, parts } = explain(t);
+	$('turn-title').textContent = title;
+	$('turn-tags').replaceChildren(...tags.map(([text, strong]) => el('span', 'tag' + (strong ? ' strong' : ''), text)));
+	$('explain').replaceChildren(...parts.map(({ runs, aside }) => {
+		const p = el('p', aside ? 'aside' : '');
+		p.append(...runs.map(run => typeof run === 'string' ? run : el('code', '', run.code)));
+		return p;
+	}));
+}
+
+function renderProtocol(t) {
+	if (!D.protocol) {
+		$('protocol').textContent = `Left out: this run is too long to embed the log of every turn. Use --protocol to write it to a file.`;
+		return;
+	}
+	const rows = (D.protocol[t] || []).map(line => {
+		const [, kind, who] = line.split('|');
+		const mine = (who || '').startsWith('p1');
+		const key = mine && (kind === '-boost' || kind === '-unboost' || kind === 'switch');
+		return el('div', 'pline' + (key ? ' key' : mine || t === 0 ? '' : ' dim'), line);
+	});
+	if (t >= 1) {
+		const [b, pc, , , , , failed] = D.turns[t - 1];
+		const instr = D.blocks[b].body[pc];
+		const stat = instr.counter && D.counterStat[instr.counter];
+		if (stat && instr.op !== 'INC' && failed & FAILED_BIT[stat]) {
+			rows.push(el('div', 'pline ghost', `(no |-unboost|p1a: ${D.blocks[b].label}|${stat}|1 line: the drop did not happen)`));
+		}
+	}
+	$('protocol').replaceChildren(...rows);
+}
+
+// ---- the chart ----
+const canvas = $('chart'), ctx = canvas.getContext('2d');
+const PAD = { left: 34, right: 40, top: 10, strip: 16, gap: 6, bottom: 4 };
+let geometry = null;
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+function layoutChart() {
+	const dpr = window.devicePixelRatio || 1;
+	const width = canvas.clientWidth, height = canvas.clientHeight;
+	canvas.width = Math.round(width * dpr);
+	canvas.height = Math.round(height * dpr);
+	ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+	const plotW = width - PAD.left - PAD.right;
+	const plotH = height - PAD.top - PAD.strip - PAD.gap - PAD.bottom;
+	geometry = { width, height, plotW, plotH, x: t => PAD.left + (N ? t / N : 0) * plotW, y: v => PAD.top + plotH - v / yMax * plotH };
+}
+const turnAtX = px => Math.max(0, Math.min(N, Math.round((px - PAD.left) / geometry.plotW * N)));
+
+function drawSeries(counter, color) {
+	const { plotW, x, y } = geometry;
+	ctx.strokeStyle = color;
+	ctx.lineWidth = 2;
+	ctx.lineJoin = 'round';
+	ctx.beginPath();
+	if (N <= plotW) {
+		ctx.moveTo(x(0), y(counterAt(0, counter)));
+		for (let t = 1; t <= N; t++) {
+			ctx.lineTo(x(t), y(counterAt(t - 1, counter)));
+			ctx.lineTo(x(t), y(counterAt(t, counter)));
+		}
+	} else {
+		// more turns than pixels: draw each column's range
+		for (let px = 0; px <= plotW; px++) {
+			const from = Math.round(px / plotW * N), to = Math.max(from, Math.round((px + 1) / plotW * N) - 1);
+			let min = Infinity, max = -Infinity;
+			for (let t = from; t <= Math.min(to, N); t++) {
+				const v = counterAt(t, counter);
+				if (v < min) min = v;
+				if (v > max) max = v;
+			}
+			const first = counterAt(from, counter);
+			if (px === 0) ctx.moveTo(PAD.left, y(first)); else ctx.lineTo(PAD.left + px, y(first));
+			ctx.lineTo(PAD.left + px, y(min));
+			ctx.lineTo(PAD.left + px, y(max));
+			ctx.lineTo(PAD.left + px, y(counterAt(Math.min(to, N), counter)));
+		}
+	}
+	ctx.stroke();
+}
+
+function drawChart(now, hover) {
+	const { width, height, plotW, plotH, x, y } = geometry;
+	ctx.clearRect(0, 0, width, height);
+	ctx.font = '11px system-ui, sans-serif';
+	ctx.textBaseline = 'middle';
+	// grid: 0, half, max
+	for (const v of [0, Math.round(yMax / 2), yMax]) {
+		ctx.strokeStyle = v === 0 ? css('--axis') : css('--hairline');
+		ctx.lineWidth = 1;
+		ctx.beginPath();
+		ctx.moveTo(PAD.left, Math.round(y(v)) + 0.5);
+		ctx.lineTo(PAD.left + plotW, Math.round(y(v)) + 0.5);
+		ctx.stroke();
+		ctx.fillStyle = css('--muted');
+		ctx.textAlign = 'right';
+		ctx.fillText(String(v), PAD.left - 6, y(v));
+	}
+	// block strip
+	const stripY = PAD.top + plotH + PAD.gap;
+	const currentVisit = now >= 1 ? visitOf[now] : -1;
+	visits.forEach((visit, i) => {
+		const x0 = x(visit.from - 1), x1 = x(visit.to);
+		if (x1 - x0 < 0.25 && i !== currentVisit) return;
+		ctx.fillStyle = i === currentVisit ? css('--accent') : css(i % 2 ? '--strip-b' : '--strip-a');
+		ctx.fillRect(x0, stripY, Math.max(x1 - x0 - (x1 - x0 > 3 ? 1 : 0), 0.5), PAD.strip);
+		const label = D.blocks[visit.block].label;
+		if (ctx.measureText(label).width + 8 < x1 - x0) {
+			ctx.fillStyle = i === currentVisit ? css('--surface') : css('--ink-2');
+			ctx.textAlign = 'center';
+			ctx.fillText(label, (x0 + x1) / 2, stripY + PAD.strip / 2 + 0.5);
+		}
+	});
+	drawSeries('T', css('--series-t'));
+	drawSeries('R', css('--series-r'));
+	// direct labels at the line ends
+	ctx.textAlign = 'left';
+	ctx.fillStyle = css('--ink-2');
+	const endR = y(counterAt(N, 'R')), endT = y(counterAt(N, 'T'));
+	// keep the two labels a line apart when the series end close together
+	const nudge = Math.max(0, 12 - Math.abs(endR - endT)) / 2 * (endR <= endT ? -1 : 1);
+	ctx.fillText(`R ${counterAt(N, 'R')}`, PAD.left + plotW + 6, endR + nudge);
+	ctx.fillText(`T ${counterAt(N, 'T')}`, PAD.left + plotW + 6, endT - nudge);
+	// hover crosshair, then the playhead
+	if (hover !== null && hover !== now) {
+		ctx.strokeStyle = css('--axis');
+		ctx.lineWidth = 1;
+		ctx.beginPath();
+		ctx.moveTo(x(hover), PAD.top);
+		ctx.lineTo(x(hover), stripY + PAD.strip);
+		ctx.stroke();
+	}
+	ctx.strokeStyle = css('--ink');
+	ctx.lineWidth = 1.5;
+	ctx.beginPath();
+	ctx.moveTo(x(now), PAD.top - 4);
+	ctx.lineTo(x(now), stripY + PAD.strip);
+	ctx.stroke();
+	for (const c of COUNTERS) {
+		ctx.beginPath();
+		ctx.arc(x(now), y(counterAt(now, c)), 4, 0, Math.PI * 2);
+		ctx.fillStyle = css(`--series-${c.toLowerCase()}`);
+		ctx.fill();
+		ctx.strokeStyle = css('--surface');
+		ctx.lineWidth = 2;
+		ctx.stroke();
+	}
+}
+
+// ---- playback ----
+let now = 0, hover = null, playing = false, shown = -1;
+const SPEEDS = [1, 2, 4, 8, 16, 64, 256, 2048];
+for (const speed of SPEEDS) $('speed').append(new Option(`${speed} turn${speed > 1 ? 's' : ''}/s`, speed));
+$('speed').value = 4;
+
+function render() {
+	if (shown === now) return drawChart(now, hover);
+	const stepped = Math.abs(now - shown) === 1 && Number($('speed').value) <= 8;
+	shown = now;
+	$('turn-now').textContent = now;
+	const record = now >= 1 ? D.turns[now - 1] : null;
+	const activeBlock = record ? record[COL.block] : 0;
+	const move = record ? D.moves[record[COL.move]] : null;
+	const arriving = move === D.batonPass ? D.blocks.findIndex(b => b.label === D.blocks[activeBlock].body[record[COL.pc]].target) : -1;
+	blockEls.forEach((block, i) => {
+		block.root.classList.toggle('active', i === activeBlock);
+		block.root.classList.toggle('arriving', i === arriving);
+		block.tag.textContent = i === arriving ? 'switching in ⤶' : i === activeBlock ? (arriving >= 0 ? 'Baton Pass ⤴' : 'active') : '';
+		for (const [name, chip] of Object.entries(block.chipEls)) chip.classList.toggle('used', i === activeBlock && name === move);
+		const currentLine = i === activeBlock && record ? block.lineOf[record[COL.pc]] : -1;
+		block.lines.forEach((line, j) => {
+			line.row.classList.toggle('current', j === currentLine);
+			const done = j === currentLine && move !== D.batonPass ? record[COL.pc] - line.start + 1 : 0;
+			line.pips.forEach((pip, k) => pip.classList.toggle('done', k < done));
+			if (line.count) line.count.textContent = done ? `${done}/${line.n}` : '';
+		});
+	});
+	const target = blockEls[arriving >= 0 && !playing ? arriving : activeBlock].root;
+	const pane = $('program');
+	if (target.offsetTop < pane.scrollTop + pane.offsetTop || target.offsetTop + target.offsetHeight > pane.scrollTop + pane.offsetTop + pane.clientHeight) {
+		pane.scrollTop = target.offsetTop - pane.offsetTop - 8;
+	}
+	for (const tile of Object.values(tiles)) {
+		const stage = stageAt(now, tile.stat), before = stageAt(Math.max(now - 1, 0), tile.stat);
+		tile.value.textContent = tile.isCounter ? stage + D.initialCounter : signed(stage);
+		tile.stage.textContent = tile.isCounter ?
+			`${STAT_NAME[tile.stat]} stage ${signed(stage)}, stat ${multiplier(stage)}` : `pinned at −6 after setup`;
+		if (tile.fill) tile.fill.style.width = `${(stage + D.initialCounter) / maxCounter[tile.key] * 100}%`;
+		const failedHere = record && (record[COL.failed] & FAILED_BIT[tile.stat]) !== 0 && tile.isCounter;
+		tile.delta.className = 'delta' + (stage !== before || failedHere ? ' show' : '') + (failedHere ? ' zero' : '');
+		tile.delta.textContent = failedHere ? `can't go lower: zero` : signed(stage - before);
+		tile.value.classList.remove('bump', 'shake');
+		if (stepped && (stage !== before || failedHere)) {
+			void tile.value.offsetWidth; // restart the animation
+			tile.value.classList.add(failedHere ? 'shake' : 'bump');
+		}
+	}
+	renderExplain(now);
+	renderProtocol(now);
+	drawChart(now, hover);
+}
+
+function seek(t) {
+	now = Math.max(0, Math.min(N, t));
+	if (now === N) setPlaying(false);
+	render();
+}
+function seekNext(test) {
+	setPlaying(false);
+	for (let t = now + 1; t <= N; t++) if (test(t)) return seek(t);
+	seek(N);
+}
+function setPlaying(on) {
+	if (on && now === N) now = 0;
+	playing = on;
+	$('b-play').textContent = on ? '⏸ pause' : '▶ play';
+	if (on) {
+		let last = performance.now(), owed = 0;
+		const tick = time => {
+			if (!playing) return;
+			owed += (time - last) / 1000 * Number($('speed').value);
+			last = time;
+			if (owed >= 1) {
+				const steps = Math.floor(owed);
+				owed -= steps;
+				seek(now + steps);
+			}
+			requestAnimationFrame(tick);
+		};
+		requestAnimationFrame(tick);
+	}
+}
+
+$('b-start').onclick = () => { setPlaying(false); seek(0); };
+$('b-end').onclick = () => { setPlaying(false); seek(N); };
+$('b-back').onclick = () => { setPlaying(false); seek(now - 1); };
+$('b-fwd').onclick = () => { setPlaying(false); seek(now + 1); };
+$('b-play').onclick = () => setPlaying(!playing);
+$('b-zero').onclick = () => seekNext(isZeroTest);
+$('b-jump').onclick = () => seekNext(isJump);
+document.addEventListener('keydown', event => {
+	if (event.target instanceof HTMLSelectElement || event.metaKey || event.ctrlKey) return;
+	const actions = {
+		' ': () => setPlaying(!playing), ArrowLeft: $('b-back').onclick, ArrowRight: $('b-fwd').onclick,
+		Home: $('b-start').onclick, End: $('b-end').onclick, z: $('b-zero').onclick, j: $('b-jump').onclick,
+	};
+	const action = actions[event.key.length === 1 ? event.key.toLowerCase() : event.key];
+	if (!action) return;
+	event.preventDefault();
+	action();
+});
+
+let dragging = false;
+const pointerTurn = event => turnAtX(event.clientX - canvas.getBoundingClientRect().left);
+canvas.addEventListener('pointerdown', event => {
+	dragging = true;
+	canvas.setPointerCapture(event.pointerId);
+	setPlaying(false);
+	seek(pointerTurn(event));
+});
+canvas.addEventListener('pointermove', event => {
+	hover = pointerTurn(event);
+	if (dragging) seek(hover);
+	const tip = $('tip');
+	const swatch = c => {
+		const s = el('span', 'swatch');
+		s.style.background = `var(--series-${c.toLowerCase()})`;
+		return s;
+	};
+	const rows = [el('div', '', hover === 0 ? 'start' : `turn ${hover}: ${D.blocks[D.turns[hover - 1][COL.block]].label}`)];
+	for (const c of COUNTERS) {
+		const row = el('div');
+		row.append(swatch(c), `${c} = ${counterAt(hover, c)}`);
+		rows.push(row);
+	}
+	tip.replaceChildren(...rows);
+	tip.style.display = 'block';
+	const px = geometry.x(hover);
+	tip.style.left = `${px + 12 + tip.offsetWidth > geometry.width ? px - 12 - tip.offsetWidth : px + 12}px`;
+	drawChart(now, hover);
+});
+canvas.addEventListener('pointerup', () => { dragging = false; });
+canvas.addEventListener('pointerleave', () => {
+	hover = null;
+	$('tip').style.display = 'none';
+	drawChart(now, hover);
+});
+
+const relayout = () => { layoutChart(); drawChart(now, hover); };
+window.addEventListener('resize', relayout);
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', relayout);
+
+$('title').textContent = D.title;
+$('turn-total').textContent = N;
+if (!D.protocol && N === 0) $('protocol-card').hidden = true;
+layoutChart();
+const startAt = Number(new URLSearchParams(location.search).get('t'));
+seek(Number.isFinite(startAt) ? startAt : 0);
+</script>
+</html>
