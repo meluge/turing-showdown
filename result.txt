@@ -1,0 +1,286 @@
+     1 SETUP    Superpower    atk=-1 def=-1
+     2 SETUP    Superpower    atk=-2 def=-2
+     3 SETUP    Superpower    atk=-3 def=-3
+     4 SETUP    Superpower    atk=-4 def=-4
+     5 SETUP    Superpower    atk=-5 def=-5
+     6 SETUP    Superpower    atk=-6 def=-6
+     7 SETUP    Hammer Arm    atk=-6 def=-6 spe=-1
+     8 SETUP    Hammer Arm    atk=-6 def=-6 spe=-2
+     9 SETUP    Hammer Arm    atk=-6 def=-6 spe=-3
+    10 SETUP    Hammer Arm    atk=-6 def=-6 spe=-4
+    11 SETUP    Hammer Arm    atk=-6 def=-6 spe=-5
+    12 SETUP    Hammer Arm    atk=-6 def=-6 spe=-6
+    13 SETUP    Harden        atk=-6 def=-5 spe=-6
+    14 SETUP    Baton Pass    atk=-6 def=-5 spe=-6
+    15 MOVE_2   Superpower    atk=-6 def=-6 spe=-6     failed: atk
+    16 MOVE_2   Flame Charge  atk=-6 def=-6 spe=-5
+    17 MOVE_2   Superpower    atk=-6 def=-6 spe=-5     failed: atk,def
+    18 MOVE_2   Baton Pass    atk=-6 def=-6 spe=-5
+    19 MUL_2    Hammer Arm    atk=-6 def=-6 spe=-6
+    20 MUL_2    Harden        atk=-6 def=-5 spe=-6
+    21 MUL_2    Harden        atk=-6 def=-4 spe=-6
+    22 MUL_2    Hammer Arm    atk=-6 def=-4 spe=-6     failed: spe
+    23 MUL_2    Baton Pass    atk=-6 def=-4 spe=-6
+    24 MOVE_3   Superpower    atk=-6 def=-5 spe=-6     failed: atk
+    25 MOVE_3   Flame Charge  atk=-6 def=-5 spe=-5
+    26 MOVE_3   Superpower    atk=-6 def=-6 spe=-5     failed: atk
+    27 MOVE_3   Flame Charge  atk=-6 def=-6 spe=-4
+    28 MOVE_3   Superpower    atk=-6 def=-6 spe=-4     failed: atk,def
+    29 MOVE_3   Baton Pass    atk=-6 def=-6 spe=-4
+    30 MUL_3    Hammer Arm    atk=-6 def=-6 spe=-5
+    31 MUL_3    Harden        atk=-6 def=-5 spe=-5
+    32 MUL_3    Harden        atk=-6 def=-4 spe=-5
+    33 MUL_3    Harden        atk=-6 def=-3 spe=-5
+    34 MUL_3    Hammer Arm    atk=-6 def=-3 spe=-6
+    35 MUL_3    Harden        atk=-6 def=-2 spe=-6
+    36 MUL_3    Harden        atk=-6 def=-1 spe=-6
+    37 MUL_3    Harden        atk=-6 spe=-6
+    38 MUL_3    Hammer Arm    atk=-6 spe=-6            failed: spe
+    39 MUL_3    Baton Pass    atk=-6 spe=-6
+    40 MOVE_4   Superpower    atk=-6 def=-1 spe=-6     failed: atk
+    41 MOVE_4   Flame Charge  atk=-6 def=-1 spe=-5
+    42 MOVE_4   Superpower    atk=-6 def=-2 spe=-5     failed: atk
+    43 MOVE_4   Flame Charge  atk=-6 def=-2 spe=-4
+    44 MOVE_4   Superpower    atk=-6 def=-3 spe=-4     failed: atk
+    45 MOVE_4   Flame Charge  atk=-6 def=-3 spe=-3
+    46 MOVE_4   Superpower    atk=-6 def=-4 spe=-3     failed: atk
+    47 MOVE_4   Flame Charge  atk=-6 def=-4 spe=-2
+    48 MOVE_4   Superpower    atk=-6 def=-5 spe=-2     failed: atk
+    49 MOVE_4   Flame Charge  atk=-6 def=-5 spe=-1
+    50 MOVE_4   Superpower    atk=-6 def=-6 spe=-1     failed: atk
+    51 MOVE_4   Flame Charge  atk=-6 def=-6
+    52 MOVE_4   Superpower    atk=-6 def=-6            failed: atk,def
+    53 MOVE_4   Baton Pass    atk=-6 def=-6
+    54 MUL_4    Hammer Arm    atk=-6 def=-6 spe=-1
+    55 MUL_4    Harden        atk=-6 def=-5 spe=-1
+    56 MUL_4    Harden        atk=-6 def=-4 spe=-1
+    57 MUL_4    Harden        atk=-6 def=-3 spe=-1
+    58 MUL_4    Harden        atk=-6 def=-2 spe=-1
+    59 MUL_4    Hammer Arm    atk=-6 def=-2 spe=-2
+    60 MUL_4    Harden        atk=-6 def=-1 spe=-2
+    61 MUL_4    Harden        atk=-6 spe=-2
+    62 MUL_4    Harden        atk=-6 def=1 spe=-2
+    63 MUL_4    Harden        atk=-6 def=2 spe=-2
+    64 MUL_4    Hammer Arm    atk=-6 def=2 spe=-3
+    65 MUL_4    Harden        atk=-6 def=3 spe=-3
+    66 MUL_4    Harden        atk=-6 def=4 spe=-3
+    67 MUL_4    Harden        atk=-6 def=5 spe=-3
+    68 MUL_4    Harden        atk=-6 def=6 spe=-3
+    69 MUL_4    Hammer Arm    atk=-6 def=6 spe=-4
+    70 MUL_4    Harden        atk=-6 def=7 spe=-4
+    71 MUL_4    Harden        atk=-6 def=8 spe=-4
+    72 MUL_4    Harden        atk=-6 def=9 spe=-4
+    73 MUL_4    Harden        atk=-6 def=10 spe=-4
+    74 MUL_4    Hammer Arm    atk=-6 def=10 spe=-5
+    75 MUL_4    Harden        atk=-6 def=11 spe=-5
+    76 MUL_4    Harden        atk=-6 def=12 spe=-5
+    77 MUL_4    Harden        atk=-6 def=13 spe=-5
+    78 MUL_4    Harden        atk=-6 def=14 spe=-5
+    79 MUL_4    Hammer Arm    atk=-6 def=14 spe=-6
+    80 MUL_4    Harden        atk=-6 def=15 spe=-6
+    81 MUL_4    Harden        atk=-6 def=16 spe=-6
+    82 MUL_4    Harden        atk=-6 def=17 spe=-6
+    83 MUL_4    Harden        atk=-6 def=18 spe=-6
+    84 MUL_4    Hammer Arm    atk=-6 def=18 spe=-6     failed: spe
+    85 MUL_4    Baton Pass    atk=-6 def=18 spe=-6
+    86 MOVE_5   Superpower    atk=-6 def=17 spe=-6     failed: atk
+    87 MOVE_5   Flame Charge  atk=-6 def=17 spe=-5
+    88 MOVE_5   Superpower    atk=-6 def=16 spe=-5     failed: atk
+    89 MOVE_5   Flame Charge  atk=-6 def=16 spe=-4
+    90 MOVE_5   Superpower    atk=-6 def=15 spe=-4     failed: atk
+    91 MOVE_5   Flame Charge  atk=-6 def=15 spe=-3
+    92 MOVE_5   Superpower    atk=-6 def=14 spe=-3     failed: atk
+    93 MOVE_5   Flame Charge  atk=-6 def=14 spe=-2
+    94 MOVE_5   Superpower    atk=-6 def=13 spe=-2     failed: atk
+    95 MOVE_5   Flame Charge  atk=-6 def=13 spe=-1
+    96 MOVE_5   Superpower    atk=-6 def=12 spe=-1     failed: atk
+    97 MOVE_5   Flame Charge  atk=-6 def=12
+    98 MOVE_5   Superpower    atk=-6 def=11            failed: atk
+    99 MOVE_5   Flame Charge  atk=-6 def=11 spe=1
+   100 MOVE_5   Superpower    atk=-6 def=10 spe=1      failed: atk
+   101 MOVE_5   Flame Charge  atk=-6 def=10 spe=2
+   102 MOVE_5   Superpower    atk=-6 def=9 spe=2       failed: atk
+   103 MOVE_5   Flame Charge  atk=-6 def=9 spe=3
+   104 MOVE_5   Superpower    atk=-6 def=8 spe=3       failed: atk
+   105 MOVE_5   Flame Charge  atk=-6 def=8 spe=4
+   106 MOVE_5   Superpower    atk=-6 def=7 spe=4       failed: atk
+   107 MOVE_5   Flame Charge  atk=-6 def=7 spe=5
+   108 MOVE_5   Superpower    atk=-6 def=6 spe=5       failed: atk
+   109 MOVE_5   Flame Charge  atk=-6 def=6 spe=6
+   110 MOVE_5   Superpower    atk=-6 def=5 spe=6       failed: atk
+   111 MOVE_5   Flame Charge  atk=-6 def=5 spe=7
+   112 MOVE_5   Superpower    atk=-6 def=4 spe=7       failed: atk
+   113 MOVE_5   Flame Charge  atk=-6 def=4 spe=8
+   114 MOVE_5   Superpower    atk=-6 def=3 spe=8       failed: atk
+   115 MOVE_5   Flame Charge  atk=-6 def=3 spe=9
+   116 MOVE_5   Superpower    atk=-6 def=2 spe=9       failed: atk
+   117 MOVE_5   Flame Charge  atk=-6 def=2 spe=10
+   118 MOVE_5   Superpower    atk=-6 def=1 spe=10      failed: atk
+   119 MOVE_5   Flame Charge  atk=-6 def=1 spe=11
+   120 MOVE_5   Superpower    atk=-6 spe=11            failed: atk
+   121 MOVE_5   Flame Charge  atk=-6 spe=12
+   122 MOVE_5   Superpower    atk=-6 def=-1 spe=12     failed: atk
+   123 MOVE_5   Flame Charge  atk=-6 def=-1 spe=13
+   124 MOVE_5   Superpower    atk=-6 def=-2 spe=13     failed: atk
+   125 MOVE_5   Flame Charge  atk=-6 def=-2 spe=14
+   126 MOVE_5   Superpower    atk=-6 def=-3 spe=14     failed: atk
+   127 MOVE_5   Flame Charge  atk=-6 def=-3 spe=15
+   128 MOVE_5   Superpower    atk=-6 def=-4 spe=15     failed: atk
+   129 MOVE_5   Flame Charge  atk=-6 def=-4 spe=16
+   130 MOVE_5   Superpower    atk=-6 def=-5 spe=16     failed: atk
+   131 MOVE_5   Flame Charge  atk=-6 def=-5 spe=17
+   132 MOVE_5   Superpower    atk=-6 def=-6 spe=17     failed: atk
+   133 MOVE_5   Flame Charge  atk=-6 def=-6 spe=18
+   134 MOVE_5   Superpower    atk=-6 def=-6 spe=18     failed: atk,def
+   135 MOVE_5   Baton Pass    atk=-6 def=-6 spe=18
+   136 MUL_5    Hammer Arm    atk=-6 def=-6 spe=17
+   137 MUL_5    Harden        atk=-6 def=-5 spe=17
+   138 MUL_5    Harden        atk=-6 def=-4 spe=17
+   139 MUL_5    Harden        atk=-6 def=-3 spe=17
+   140 MUL_5    Harden        atk=-6 def=-2 spe=17
+   141 MUL_5    Harden        atk=-6 def=-1 spe=17
+   142 MUL_5    Hammer Arm    atk=-6 def=-1 spe=16
+   143 MUL_5    Harden        atk=-6 spe=16
+   144 MUL_5    Harden        atk=-6 def=1 spe=16
+   145 MUL_5    Harden        atk=-6 def=2 spe=16
+   146 MUL_5    Harden        atk=-6 def=3 spe=16
+   147 MUL_5    Harden        atk=-6 def=4 spe=16
+   148 MUL_5    Hammer Arm    atk=-6 def=4 spe=15
+   149 MUL_5    Harden        atk=-6 def=5 spe=15
+   150 MUL_5    Harden        atk=-6 def=6 spe=15
+   151 MUL_5    Harden        atk=-6 def=7 spe=15
+   152 MUL_5    Harden        atk=-6 def=8 spe=15
+   153 MUL_5    Harden        atk=-6 def=9 spe=15
+   154 MUL_5    Hammer Arm    atk=-6 def=9 spe=14
+   155 MUL_5    Harden        atk=-6 def=10 spe=14
+   156 MUL_5    Harden        atk=-6 def=11 spe=14
+   157 MUL_5    Harden        atk=-6 def=12 spe=14
+   158 MUL_5    Harden        atk=-6 def=13 spe=14
+   159 MUL_5    Harden        atk=-6 def=14 spe=14
+   160 MUL_5    Hammer Arm    atk=-6 def=14 spe=13
+   161 MUL_5    Harden        atk=-6 def=15 spe=13
+   162 MUL_5    Harden        atk=-6 def=16 spe=13
+   163 MUL_5    Harden        atk=-6 def=17 spe=13
+   164 MUL_5    Harden        atk=-6 def=18 spe=13
+   165 MUL_5    Harden        atk=-6 def=19 spe=13
+   166 MUL_5    Hammer Arm    atk=-6 def=19 spe=12
+   167 MUL_5    Harden        atk=-6 def=20 spe=12
+   168 MUL_5    Harden        atk=-6 def=21 spe=12
+   169 MUL_5    Harden        atk=-6 def=22 spe=12
+   170 MUL_5    Harden        atk=-6 def=23 spe=12
+   171 MUL_5    Harden        atk=-6 def=24 spe=12
+   172 MUL_5    Hammer Arm    atk=-6 def=24 spe=11
+   173 MUL_5    Harden        atk=-6 def=25 spe=11
+   174 MUL_5    Harden        atk=-6 def=26 spe=11
+   175 MUL_5    Harden        atk=-6 def=27 spe=11
+   176 MUL_5    Harden        atk=-6 def=28 spe=11
+   177 MUL_5    Harden        atk=-6 def=29 spe=11
+   178 MUL_5    Hammer Arm    atk=-6 def=29 spe=10
+   179 MUL_5    Harden        atk=-6 def=30 spe=10
+   180 MUL_5    Harden        atk=-6 def=31 spe=10
+   181 MUL_5    Harden        atk=-6 def=32 spe=10
+   182 MUL_5    Harden        atk=-6 def=33 spe=10
+   183 MUL_5    Harden        atk=-6 def=34 spe=10
+   184 MUL_5    Hammer Arm    atk=-6 def=34 spe=9
+   185 MUL_5    Harden        atk=-6 def=35 spe=9
+   186 MUL_5    Harden        atk=-6 def=36 spe=9
+   187 MUL_5    Harden        atk=-6 def=37 spe=9
+   188 MUL_5    Harden        atk=-6 def=38 spe=9
+   189 MUL_5    Harden        atk=-6 def=39 spe=9
+   190 MUL_5    Hammer Arm    atk=-6 def=39 spe=8
+   191 MUL_5    Harden        atk=-6 def=40 spe=8
+   192 MUL_5    Harden        atk=-6 def=41 spe=8
+   193 MUL_5    Harden        atk=-6 def=42 spe=8
+   194 MUL_5    Harden        atk=-6 def=43 spe=8
+   195 MUL_5    Harden        atk=-6 def=44 spe=8
+   196 MUL_5    Hammer Arm    atk=-6 def=44 spe=7
+   197 MUL_5    Harden        atk=-6 def=45 spe=7
+   198 MUL_5    Harden        atk=-6 def=46 spe=7
+   199 MUL_5    Harden        atk=-6 def=47 spe=7
+   200 MUL_5    Harden        atk=-6 def=48 spe=7
+   201 MUL_5    Harden        atk=-6 def=49 spe=7
+   202 MUL_5    Hammer Arm    atk=-6 def=49 spe=6
+   203 MUL_5    Harden        atk=-6 def=50 spe=6
+   204 MUL_5    Harden        atk=-6 def=51 spe=6
+   205 MUL_5    Harden        atk=-6 def=52 spe=6
+   206 MUL_5    Harden        atk=-6 def=53 spe=6
+   207 MUL_5    Harden        atk=-6 def=54 spe=6
+   208 MUL_5    Hammer Arm    atk=-6 def=54 spe=5
+   209 MUL_5    Harden        atk=-6 def=55 spe=5
+   210 MUL_5    Harden        atk=-6 def=56 spe=5
+   211 MUL_5    Harden        atk=-6 def=57 spe=5
+   212 MUL_5    Harden        atk=-6 def=58 spe=5
+   213 MUL_5    Harden        atk=-6 def=59 spe=5
+   214 MUL_5    Hammer Arm    atk=-6 def=59 spe=4
+   215 MUL_5    Harden        atk=-6 def=60 spe=4
+   216 MUL_5    Harden        atk=-6 def=61 spe=4
+   217 MUL_5    Harden        atk=-6 def=62 spe=4
+   218 MUL_5    Harden        atk=-6 def=63 spe=4
+   219 MUL_5    Harden        atk=-6 def=64 spe=4
+   220 MUL_5    Hammer Arm    atk=-6 def=64 spe=3
+   221 MUL_5    Harden        atk=-6 def=65 spe=3
+   222 MUL_5    Harden        atk=-6 def=66 spe=3
+   223 MUL_5    Harden        atk=-6 def=67 spe=3
+   224 MUL_5    Harden        atk=-6 def=68 spe=3
+   225 MUL_5    Harden        atk=-6 def=69 spe=3
+   226 MUL_5    Hammer Arm    atk=-6 def=69 spe=2
+   227 MUL_5    Harden        atk=-6 def=70 spe=2
+   228 MUL_5    Harden        atk=-6 def=71 spe=2
+   229 MUL_5    Harden        atk=-6 def=72 spe=2
+   230 MUL_5    Harden        atk=-6 def=73 spe=2
+   231 MUL_5    Harden        atk=-6 def=74 spe=2
+   232 MUL_5    Hammer Arm    atk=-6 def=74 spe=1
+   233 MUL_5    Harden        atk=-6 def=75 spe=1
+   234 MUL_5    Harden        atk=-6 def=76 spe=1
+   235 MUL_5    Harden        atk=-6 def=77 spe=1
+   236 MUL_5    Harden        atk=-6 def=78 spe=1
+   237 MUL_5    Harden        atk=-6 def=79 spe=1
+   238 MUL_5    Hammer Arm    atk=-6 def=79
+   239 MUL_5    Harden        atk=-6 def=80
+   240 MUL_5    Harden        atk=-6 def=81
+   241 MUL_5    Harden        atk=-6 def=82
+   242 MUL_5    Harden        atk=-6 def=83
+   243 MUL_5    Harden        atk=-6 def=84
+   244 MUL_5    Hammer Arm    atk=-6 def=84 spe=-1
+   245 MUL_5    Harden        atk=-6 def=85 spe=-1
+   246 MUL_5    Harden        atk=-6 def=86 spe=-1
+   247 MUL_5    Harden        atk=-6 def=87 spe=-1
+   248 MUL_5    Harden        atk=-6 def=88 spe=-1
+   249 MUL_5    Harden        atk=-6 def=89 spe=-1
+   250 MUL_5    Hammer Arm    atk=-6 def=89 spe=-2
+   251 MUL_5    Harden        atk=-6 def=90 spe=-2
+   252 MUL_5    Harden        atk=-6 def=91 spe=-2
+   253 MUL_5    Harden        atk=-6 def=92 spe=-2
+   254 MUL_5    Harden        atk=-6 def=93 spe=-2
+   255 MUL_5    Harden        atk=-6 def=94 spe=-2
+   256 MUL_5    Hammer Arm    atk=-6 def=94 spe=-3
+   257 MUL_5    Harden        atk=-6 def=95 spe=-3
+   258 MUL_5    Harden        atk=-6 def=96 spe=-3
+   259 MUL_5    Harden        atk=-6 def=97 spe=-3
+   260 MUL_5    Harden        atk=-6 def=98 spe=-3
+   261 MUL_5    Harden        atk=-6 def=99 spe=-3
+   262 MUL_5    Hammer Arm    atk=-6 def=99 spe=-4
+   263 MUL_5    Harden        atk=-6 def=100 spe=-4
+   264 MUL_5    Harden        atk=-6 def=101 spe=-4
+   265 MUL_5    Harden        atk=-6 def=102 spe=-4
+   266 MUL_5    Harden        atk=-6 def=103 spe=-4
+   267 MUL_5    Harden        atk=-6 def=104 spe=-4
+   268 MUL_5    Hammer Arm    atk=-6 def=104 spe=-5
+   269 MUL_5    Harden        atk=-6 def=105 spe=-5
+   270 MUL_5    Harden        atk=-6 def=106 spe=-5
+   271 MUL_5    Harden        atk=-6 def=107 spe=-5
+   272 MUL_5    Harden        atk=-6 def=108 spe=-5
+   273 MUL_5    Harden        atk=-6 def=109 spe=-5
+   274 MUL_5    Hammer Arm    atk=-6 def=109 spe=-6
+   275 MUL_5    Harden        atk=-6 def=110 spe=-6
+   276 MUL_5    Harden        atk=-6 def=111 spe=-6
+   277 MUL_5    Harden        atk=-6 def=112 spe=-6
+   278 MUL_5    Harden        atk=-6 def=113 spe=-6
+   279 MUL_5    Harden        atk=-6 def=114 spe=-6
+   280 MUL_5    Hammer Arm    atk=-6 def=114 spe=-6    failed: spe
+
+halted after 280 turns
+  R = 120   (def stage 114)
+  T = 0   (spe stage -6)
+  atk stage -6
+matches the reference interpreter
